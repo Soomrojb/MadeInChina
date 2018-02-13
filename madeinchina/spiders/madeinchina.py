@@ -25,7 +25,6 @@ class MicSpider(scrapy.Spider):
                 "Catg_Code"     :   Code
             }
             yield scrapy.Request(NewURL, callback=self.catparse, dont_filter=True, meta=MetaData)
-            #break
     
     def catparse(self, response):
         for Posts in response.xpath("//div[contains(@class,'sc-list-buyer')]/ul[@class='sc-list-bd']/li"):
@@ -38,6 +37,8 @@ class MicSpider(scrapy.Spider):
                 "Post_Href"     :   PostHref
             }
             yield scrapy.Request(PostHref, callback=self.postparse, dont_filter=True, meta=MetaData)
+        NextPage = BaseURL + response.xpath("//div[@class='pager']//a[(@class='next') and (text()='Next')]/@href")[0].extract()
+        yield scrapy.Request(NextPage, callback=self.catparse, dont_filter=True, meta=response.meta)
 
     def postparse(self, response):
         BreadCrumn = response.xpath("normalize-space(//div[@class='ellipsis-rfq-div'])")[0].extract()
